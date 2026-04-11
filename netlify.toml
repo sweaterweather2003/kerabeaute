@@ -1,0 +1,32 @@
+[build]
+  # No build step needed — everything is already static HTML
+  publish = "public"
+  command = ""
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# ── Security & Performance Headers ──────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options         = "SAMEORIGIN"
+    X-Content-Type-Options  = "nosniff"
+    Referrer-Policy         = "strict-origin-when-cross-origin"
+
+# Cache HTML files for a short time (always want fresh content)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Cache everything else (images, fonts, JS, CSS) for 1 year
+[[headers]]
+  for = "/wp-content/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/wp-includes/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

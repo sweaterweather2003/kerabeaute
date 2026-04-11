@@ -1,0 +1,134 @@
+/* Custom Static Price Filter Styles - Matched to Astra/Kerabeaute Theme */
+:root {
+    --ast-global-color-0: #109fa2;
+    --ast-global-color-1: #323232;
+    --ast-global-color-2: #000000;
+    --ast-global-color-3: #565656;
+    --ast-global-color-4: #f7f7f7;
+    --ast-global-color-5: #ffffff;
+    --ast-global-color-6: #b8b8b8;
+    --ast-border-color: #dddddd;
+}
+
+.static-price-filter {
+    margin-bottom: 2em;
+    padding: 2em;
+    background-color: var(--ast-global-color-5);
+    border: 1px solid var(--ast-border-color);
+}
+
+.static-price-filter h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 1.5em;
+    color: var(--ast-global-color-2);
+}
+
+.price-slider-container {
+    position: relative;
+    height: 30px;
+    margin: 1.5em 0;
+}
+
+/* Double Range Slider Styling */
+.price-slider-container input[type="range"] {
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+    -webkit-appearance: none;
+    z-index: 3;
+    height: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    margin: 0;
+}
+
+.price-slider-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: all;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ast-global-color-0);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.price-slider-container input[type="range"]::-moz-range-thumb {
+    pointer-events: all;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ast-global-color-0);
+    cursor: pointer;
+    border: none;
+}
+
+.slider-track {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: var(--ast-border-color);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    border-radius: 4px;
+}
+
+.slider-track-active {
+    position: absolute;
+    height: 4px;
+    background: var(--ast-global-color-0);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    border-radius: 4px;
+}
+
+.price-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5em;
+    font-family: 'Cabin', sans-serif;
+    font-size: 15px;
+    color: var(--ast-global-color-3);
+    line-height: 1.65em;
+}
+
+.price-values span b {
+    color: var(--ast-global-color-1);
+}
+
+.filter-button-container {
+    margin-top: 1.5em;
+}
+
+.static-filter-btn {
+    display: inline-block;
+    background-color: var(--ast-global-color-0);
+    color: var(--ast-global-color-5);
+    border: none;
+    padding: 10px 25px;
+    font-family: 'Cabin', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 0; /* Astra default buttons are often square */
+}
+
+.static-filter-btn:hover {
+    background-color: var(--ast-global-color-1);
+    color: var(--ast-global-color-5);
+}
+
+/* Hide original block if it's there and stuck in loading */
+.wp-block-woocommerce-price-filter.is-loading,
+.wc-block-price-filter.is-loading {
+    display: none !important;
+}

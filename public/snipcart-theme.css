@@ -1,0 +1,172 @@
+/* ============================================================
+   Kerabeaute × Snipcart Theme Overrides
+   Brand: Primary #109fa2 | Hover #323232 | Text #565656
+   ============================================================ */
+
+/* --- Core color variables --- */
+#snipcart {
+  --color-default: #565656;
+  --color-alt: #323232;
+  --color-icon: #109fa2;
+  --color-input-focus-border: #109fa2;
+  --color-badge: #109fa2;
+  --color-badge-active: #0d8285;
+
+  /* Cart header & footer backgrounds */
+  --color-bgr: #ffffff;
+  --color-bgr-alt: #f7f7f7;
+
+  /* Button colours  */
+  --color-button: #109fa2;
+  --color-button-hover: #0d8285;
+  --color-button-active: #0a6e70;
+  --color-button-text: #ffffff;
+
+  /* Links */
+  --color-link: #109fa2;
+  --color-link-hover: #0d8285;
+
+  /* Accent / highlight */
+  --color-accent: #109fa2;
+  --borderRadius-button: 0px;
+}
+
+/* --- Primary action buttons --- */
+#snipcart .snipcart-checkout__button,
+#snipcart .snipcart-base-button,
+#snipcart .snipcart__action--link,
+#snipcart button[class*="snipcart-"]:not([class*="snipcart-item-line__remove"]) {
+  background-color: #109fa2 !important;
+  color: #ffffff !important;
+  border-color: #109fa2 !important;
+  border-radius: 0 !important;
+  font-family: 'Cabin', sans-serif;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 12px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#snipcart .snipcart-checkout__button:hover,
+#snipcart .snipcart-base-button:hover,
+#snipcart button[class*="snipcart-"]:not([class*="snipcart-item-line__remove"]):hover {
+  background-color: #0d8285 !important;
+  border-color: #0d8285 !important;
+}
+
+/* --- Cart header --- */
+#snipcart .snipcart-cart-header {
+  background-color: #109fa2;
+  color: #ffffff;
+}
+
+#snipcart .snipcart-cart-header__title {
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+#snipcart .snipcart-cart-header__close-button svg {
+  fill: #ffffff;
+}
+
+/* --- Item count badge on cart icon --- */
+#snipcart .snipcart-items-count {
+  background-color: #109fa2 !important;
+  color: #ffffff !important;
+}
+
+/* --- Cart item lines --- */
+#snipcart .snipcart-item-line {
+  border-bottom: 1px solid #dddddd;
+  font-family: 'Cabin', sans-serif;
+}
+
+#snipcart .snipcart-item-line__title {
+  color: #000000;
+  font-weight: 600;
+}
+
+#snipcart .snipcart-item-line__price,
+#snipcart .snipcart-item-line__total-price {
+  color: #109fa2;
+  font-weight: 600;
+}
+
+/* --- Quantity buttons --- */
+#snipcart .snipcart-item-quantity__quantity input,
+#snipcart .snipcart-item-quantity__button {
+  border-color: #dddddd;
+  color: #565656;
+}
+
+/* --- Cart total --- */
+#snipcart .snipcart-cart-summary-fees__item--total .snipcart-cart-summary-fees__price {
+  color: #109fa2;
+  font-weight: 700;
+}
+
+/* --- Input fields --- */
+#snipcart input:focus,
+#snipcart select:focus,
+#snipcart textarea:focus {
+  border-color: #109fa2 !important;
+  outline: none;
+}
+
+/* --- Links inside cart --- */
+#snipcart a {
+  color: #109fa2;
+}
+
+#snipcart a:hover {
+  color: #0d8285;
+}
+
+/* --- Continue shopping / back links --- */
+#snipcart .snipcart__action--link {
+  background: transparent !important;
+  color: #109fa2 !important;
+  border: none !important;
+  text-decoration: underline;
+  padding: 0;
+  font-size: 13px;
+}
+
+#snipcart .snipcart__action--link:hover {
+  color: #0d8285 !important;
+}
+
+/* --- Discount / coupon --- */
+#snipcart .snipcart-discount-box__button {
+  background-color: #109fa2 !important;
+  color: #ffffff !important;
+}
+
+/* --- Scrollbar styling --- */
+#snipcart ::-webkit-scrollbar {
+  width: 4px;
+}
+
+#snipcart ::-webkit-scrollbar-thumb {
+  background: #109fa2;
+  border-radius: 2px;
+}
+
+/* --- Overlay backdrop --- */
+.snipcart-modal__container {
+  font-family: 'Cabin', sans-serif;
+}
+
+/* --- Disable legacy Astra/WooCommerce drawer conflict --- */
+#astra-mobile-cart-drawer,
+.astra-mobile-cart-overlay,
+.ast-site-header-cart-data,
+.ast-desktop-cart-flyout {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

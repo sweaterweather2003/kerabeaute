@@ -1,0 +1,109 @@
+# ============================================================
+# Netlify _redirects — Kerabeaute
+# 200 = serve the file silently (URL stays the same)
+# 301 = permanent redirect
+# ============================================================
+
+# ── Home ────────────────────────────────────────────────────
+/                       /index.html                                                                 200
+
+# ── Shop / Get It Now ───────────────────────────────────────
+/get-it-now             /get-it-now/index.html                                                      200
+/shop                   /get-it-now/index.html                                                      200
+/products               /get-it-now/index.html                                                      200
+/get-it-now/            /get-it-now                                                                 301
+/get-it-now                  /get-it-now                                                                 301
+/products/              /get-it-now                                                                 301
+
+# Shop pagination
+/get-it-now/page/2      /get-it-now/page/2/index.html                                               200
+/get-it-now/page/2/     /get-it-now/page/2                                                          301
+
+# ── Individual Products ──────────────────────────────────────
+/product/kerabeaute-roll-on     /product/kerabeaute-roll-on/index.html                              200
+/product/kerabeaute-roll-on/    /product/kerabeaute-roll-on                                         301
+/product/prolog                 /product/prolog/index.html                                          200
+/product/prolog/                /product/prolog                                                     301
+/product/radiante-elixir        /product/radiante-elixir/index.html                                 200
+/product/radiante-elixir/       /product/radiante-elixir                                            301
+/product/routine                /product/routine/index.html                                         200
+/product/routine/               /product/routine                                                    301
+
+# ── Product Categories ───────────────────────────────────────
+/product-category/hair-oil              /product-category/hair-oil/index.html                       200
+/product-category/hair-oil/             /product-category/hair-oil                                  301
+/product-category/roll-on               /product-category/roll-on/index.html                       200
+/product-category/roll-on/              /product-category/roll-on                                   301
+/product-category/serum                 /product-category/serum/index.html                         200
+/product-category/serum/                /product-category/serum                                     301
+/product-category/hair-oil/premium-hair-oil     /product-category/hair-oil/premium-hair-oil/index.html  200
+/product-category/hair-oil/premium-hair-oil/    /product-category/hair-oil/premium-hair-oil         301
+/product-category/hair-oil/regular-hair-oil     /product-category/hair-oil/regular-hair-oil/index.html  200
+/product-category/hair-oil/regular-hair-oil/    /product-category/hair-oil/regular-hair-oil         301
+
+# ── Static Pages ─────────────────────────────────────────────
+/about-us               /about-us.html                                                              200
+/about                  /about-us.html                                                              200
+/about-us/              /about-us                                                                   301
+/about/                 /about-us                                                                   301
+
+/blogs                  /blogs.html                                                                 200
+/blogs/                 /blogs                                                                      301
+
+/brochure               /brochure.html                                                              200
+/brochure/              /brochure                                                                   301
+
+/downloads              /downloads.html                                                             200
+/downloads/             /downloads                                                                  301
+
+/faqs                   /faqs.html                                                                  200
+/faqs/                  /faqs                                                                       301
+
+/get-in-touch           /get-in-touch.html                                                          200
+/connect                /get-in-touch.html                                                          200
+/get-in-touch/          /get-in-touch                                                               301
+/connect/               /get-in-touch                                                               301
+
+/join-us                /join-us.html                                                               200
+/join-us/               /join-us                                                                    301
+
+/magic-we-engineered    /magic-we-engineered.html                                                   200
+/magic-we-engineered/   /magic-we-engineered                                                        301
+
+/my-account             /my-account.html                                                            200
+/my-account/            /my-account                                                                 301
+
+/privacy-policy         /privacy-policy.html                                                        200
+/privacy-policy/        /privacy-policy                                                             301
+
+/register               /register.html                                                              200
+/register/              /register                                                                   301
+
+/terms-and-conditions   /terms-and-conditions.html                                                  200
+/terms-and-conditions/  /terms-and-conditions                                                       301
+
+/testimonials           /testimonials.html                                                          200
+/testimonials/          /testimonials                                                               301
+
+/cart                   /cart.html                                                                  200
+/cart                  /cart                                                                       301
+
+/checkout                   /checkout.html                                                          200
+/checkout/                  /checkout                                                               301
+
+
+# ── Blog Posts ───────────────────────────────────────────────
+/adapting-your-hair-routine-while-on-vacation           /adapting-your-hair-routine-while-on-vacation/index.html            200
+/adapting-your-hair-routine-while-on-vacation/          /adapting-your-hair-routine-while-on-vacation                       301
+
+/say-goodbye-to-dandruff-the-natural-way                /say-goodbye-to-dandruff-the-natural-way/index.html                 200
+/say-goodbye-to-dandruff-the-natural-way/               /say-goodbye-to-dandruff-the-natural-way                           301
+
+/theultimatehaircareroutineforeveryhairtype             /theultimatehaircareroutineforeveryhairtype/index.html              200
+/theultimatehaircareroutineforeveryhairtype/            /theultimatehaircareroutineforeveryhairtype                         301
+
+/why-hair-falls-and-gets-damaged-understanding-the-causes-and-solutions     /why-hair-falls-and-gets-damaged-understanding-the-causes-and-solutions/index.html     200
+/why-hair-falls-and-gets-damaged-understanding-the-causes-and-solutions/    /why-hair-falls-and-gets-damaged-understanding-the-causes-and-solutions               301
+
+# ── Catch-all 404 ────────────────────────────────────────────
+/*                      /404.html                                                                   404
