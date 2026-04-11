@@ -907,17 +907,17 @@ class="post-552 page type-page status-publish ast-article-single" id="post-552" 
 </table>
 <div id="payment" class="woocommerce-checkout-payment">
 			<ul class="wc_payment_methods payment_methods methods">
-			<li class="wc_payment_method payment_method_cashfree">
-	<input id="payment_method_cashfree" type="radio" class="input-radio" name="payment_method" value="cashfree"  checked='checked' data-order_button_text="Pay Now" />
-
-	<label for="payment_method_cashfree">
-		Cashfree Payments <img decoding="async" src="https://cashfreelogo.cashfree.com/cashfreepayments/logopng1x/Cashfree_Payments_Logo.png" alt="Cashfree Payments" />	</label>
-			<div class="payment_box payment_method_cashfree" >
-			
-<p><p>Pay securely via Card/Net Banking/Wallet via Cashfree.</p>
-</p>		</div>
-	</li>
-		</ul>
+			<li class="wc_payment_method" style="list-style:none;padding:14px 18px;background:#f0fcfc;border-radius:8px;border:2px solid #109fa2;">
+				<input id="payment_method_razorpay" type="radio" class="input-radio" name="payment_method" value="razorpay" checked />
+				<label for="payment_method_razorpay" style="font-weight:700;font-size:1rem;color:#109fa2;cursor:pointer;">
+					🔒 Secure Online Payment — Razorpay
+				</label>
+				<div class="payment_box" style="margin-top:10px;padding:12px 14px;background:#fff;border-radius:6px;border:1px solid #d0eeee;font-size:0.9rem;color:#555;">
+					<p>Place your order and our team will reach out to confirm payment. We accept <strong>UPI, Credit/Debit Cards, Net Banking &amp; Wallets</strong> via Razorpay.</p>
+					<p style="margin-top:6px;color:#888;font-size:0.82rem;">📞 You can also call us at <strong>+91-9220765389</strong> to complete your order.</p>
+				</div>
+			</li>
+			</ul>
 		<div class="form-row place-order">
 		<noscript>
 			Since your browser does not support JavaScript, or it is disabled, please ensure you click the <em>Update Totals</em> button before placing your order. You may be charged more than the amount stated above if you fail to do so.			<br/><button type="submit" class="button alt" name="woocommerce_checkout_update_totals" value="Update totals">Update totals</button>
@@ -1642,6 +1642,201 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.kerabeauteCart = { get: getCart, add: addToCart };
+</script>
+
+<script type="module" id="kb-checkout-script">
+// ═══════════════════════════════════════════════════════════════════
+// KERABEAUTE — CHECKOUT MODULE
+// Dynamic cart display · Form validation · Firestore order saving
+// ═══════════════════════════════════════════════════════════════════
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const _fbConfig = {
+  apiKey: "AIzaSyAxUmV9ua1NE66xQILaWWl8Os1nnRna1k4",
+  authDomain: "kerabeaute-web.firebaseapp.com",
+  projectId: "kerabeaute-web",
+  storageBucket: "kerabeaute-web.firebasestorage.app",
+  messagingSenderId: "136647567082",
+  appId: "1:136647567082:web:acd57fc53019fd19c4d993",
+};
+// Reuse existing app to avoid duplicate-app errors
+const _app = getApps().length > 0 ? getApp() : initializeApp(_fbConfig);
+const _db  = getFirestore(_app);
+
+const CART_KEY = 'kerabeaute_my_cart';
+
+// ─── 1. Render cart items in the order summary table ────────────────
+function renderOrderSummary() {
+  const cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+  const tbody = document.querySelector('.woocommerce-checkout-review-order-table tbody');
+  if (!tbody) return;
+
+  if (cart.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="2" style="text-align:center;padding:2em;color:#888;">Your cart is empty. <a href="/shop" style="color:#109fa2;">Continue Shopping →</a></td></tr>`;
+    const btn = document.getElementById('place_order');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+    return;
+  }
+
+  let subtotal = 0;
+  tbody.innerHTML = '';
+  cart.forEach(item => {
+    const lineTotal = parseFloat((item.price * item.qty).toFixed(2));
+    subtotal += lineTotal;
+    const tr = document.createElement('tr');
+    tr.className = 'cart_item';
+    tr.innerHTML = `
+      <td class="product-name">${item.name}&nbsp;<strong class="product-quantity">&times;&nbsp;${item.qty}</strong></td>
+      <td class="product-total"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#8377;</span>${lineTotal.toFixed(2)}</bdi></span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const amountHTML = v => `<span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#8377;</span>${v}</bdi></span>`;
+  const subtotalTd = document.querySelector('tr.cart-subtotal td');
+  const totalTd    = document.querySelector('tr.order-total td');
+  if (subtotalTd) subtotalTd.innerHTML = amountHTML(subtotal.toFixed(2));
+  if (totalTd)    totalTd.innerHTML    = `<strong>${amountHTML(subtotal.toFixed(2))}</strong>`;
+}
+
+// ─── 2. Form validation ─────────────────────────────────────────────
+const REQUIRED_FIELDS = [
+  'billing_first_name', 'billing_last_name',
+  'billing_address_1',  'billing_city',
+  'billing_postcode',   'billing_phone', 'billing_email'
+];
+
+function validateForm() {
+  let valid = true;
+  let firstError = null;
+
+  REQUIRED_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const empty = !el.value.trim();
+    const badEmail = id === 'billing_email' && el.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+    if (empty || badEmail) {
+      el.classList.add('kb-field-error');
+      if (!firstError) firstError = el;
+      valid = false;
+    } else {
+      el.classList.remove('kb-field-error');
+    }
+  });
+
+  const terms = document.getElementById('terms');
+  if (terms && !terms.checked) {
+    terms.closest('label')?.style && (terms.closest('label').style.color = '#e74c3c');
+    if (!firstError) firstError = terms;
+    valid = false;
+  } else if (terms) {
+    const lbl = terms.closest('label');
+    if (lbl) lbl.style.color = '';
+  }
+
+  if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return valid;
+}
+
+// ─── 3. Place order handler ──────────────────────────────────────────
+async function handlePlaceOrder(e) {
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  if (!validateForm()) return;
+
+  const cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+  if (cart.length === 0) { alert('Your cart is empty!'); return; }
+
+  const btn = document.getElementById('place_order');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Placing your order…';
+  btn.style.opacity = '0.75';
+
+  const billing = {
+    firstName : document.getElementById('billing_first_name')?.value.trim() || '',
+    lastName  : document.getElementById('billing_last_name')?.value.trim()  || '',
+    company   : document.getElementById('billing_company')?.value.trim()    || '',
+    address1  : document.getElementById('billing_address_1')?.value.trim()  || '',
+    address2  : document.getElementById('billing_address_2')?.value.trim()  || '',
+    city      : document.getElementById('billing_city')?.value.trim()       || '',
+    state     : document.getElementById('billing_state')?.value             || '',
+    postcode  : document.getElementById('billing_postcode')?.value.trim()   || '',
+    phone     : document.getElementById('billing_phone')?.value.trim()      || '',
+    email     : document.getElementById('billing_email')?.value.trim()      || '',
+    country   : document.getElementById('billing_country')?.value           || 'IN',
+    notes     : document.getElementById('order_comments')?.value.trim()     || '',
+  };
+
+  const total = parseFloat(cart.reduce((s, i) => s + i.price * i.qty, 0).toFixed(2));
+  const orderNumber = 'KB' + Date.now().toString().slice(-8);
+
+  try {
+    const docRef = await addDoc(collection(_db, 'orders'), {
+      orderNumber,
+      billing,
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, image: i.image || '' })),
+      total,
+      currency: 'INR',
+      status: 'pending_payment',
+      paymentMethod: 'razorpay',
+      createdAt: serverTimestamp(),
+    });
+
+    localStorage.removeItem(CART_KEY); // clear cart
+    window.location.href = `/order-confirmation?order=${encodeURIComponent(orderNumber)}&ref=${docRef.id}`;
+
+  } catch (err) {
+    console.error('Checkout error:', err);
+    btn.disabled = false;
+    btn.textContent = origText;
+    btn.style.opacity = '';
+    alert('Something went wrong. Please try again or call us at +91-9220765389.');
+  }
+}
+
+// ─── 4. Init on DOM ready ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Inline style for validation errors
+  const style = document.createElement('style');
+  style.textContent = `
+    .kb-field-error { border-color: #e74c3c !important; box-shadow: 0 0 0 3px rgba(231,76,60,.15) !important; }
+    .kb-field-error:focus { outline-color: #e74c3c; }
+    #place_order:not(:disabled):hover { background:#0a8587 !important; transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+    #place_order { transition: all .2s ease; }
+  `;
+  document.head.appendChild(style);
+
+  renderOrderSummary();
+
+  // Attach place-order handler
+  const btn = document.getElementById('place_order');
+  if (btn) btn.addEventListener('click', handlePlaceOrder);
+
+  const form = document.querySelector('form.woocommerce-checkout');
+  if (form) form.addEventListener('submit', handlePlaceOrder);
+
+  // Live field feedback
+  REQUIRED_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      if (el.value.trim()) el.classList.remove('kb-field-error');
+      else el.classList.add('kb-field-error');
+    });
+  });
+
+  // Terms live feedback
+  const terms = document.getElementById('terms');
+  if (terms) {
+    terms.addEventListener('change', () => {
+      const lbl = terms.closest('label');
+      if (lbl) lbl.style.color = terms.checked ? '' : '#e74c3c';
+    });
+  }
+});
 </script>
 
 <script type="module">

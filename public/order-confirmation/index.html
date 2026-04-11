@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed — Kerabeaute</title>
+  <meta name="description" content="Your Kerabeaute order has been received. We will contact you shortly to confirm payment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cabin', sans-serif;
+      background: linear-gradient(135deg, #f0fcfc 0%, #ffffff 60%, #f9f4ee 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: #333;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(16, 159, 162, 0.12), 0 2px 8px rgba(0,0,0,.06);
+      padding: 3rem 2.5rem;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      animation: fadeUp .5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .checkmark {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #109fa2, #7ecac2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 6px 20px rgba(16,159,162,.3);
+      animation: popIn .4s .2s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .checkmark svg {
+      width: 40px;
+      height: 40px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #109fa2;
+      margin-bottom: .5rem;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .order-box {
+      background: #f0fcfc;
+      border: 1.5px solid #b2e5e6;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .order-box .label {
+      font-size: .8rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .25rem;
+    }
+
+    .order-box .value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #109fa2;
+      letter-spacing: .04em;
+    }
+
+    .steps {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+
+    .steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .6rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: .93rem;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .steps li:last-child { border-bottom: none; }
+
+    .steps .icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .95rem;
+      margin-top: .05rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: .75rem 1.8rem;
+      border-radius: 8px;
+      font-family: 'Cabin', sans-serif;
+      font-size: .95rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all .2s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #109fa2, #7ecac2);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(16,159,162,.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(16,159,162,.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #109fa2;
+      border: 2px solid #109fa2;
+    }
+
+    .btn-outline:hover {
+      background: #f0fcfc;
+      transform: translateY(-1px);
+    }
+
+    .contact-note {
+      margin-top: 1.5rem;
+      font-size: .85rem;
+      color: #999;
+    }
+
+    .contact-note a {
+      color: #109fa2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 2rem 1.25rem; }
+      h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <!-- Animated checkmark -->
+    <div class="checkmark">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+
+    <h1>Order Received!</h1>
+    <p class="subtitle">
+      Thank you for shopping with Kerabeaute.<br>
+      Your order has been placed and is being reviewed.
+    </p>
+
+    <!-- Order number box -->
+    <div class="order-box">
+      <div class="label">Your Order Number</div>
+      <div class="value" id="order-number">Loading…</div>
+    </div>
+
+    <!-- What happens next -->
+    <ul class="steps">
+      <li>
+        <span class="icon">📋</span>
+        <span>Your order details have been <strong>saved securely</strong> in our system.</span>
+      </li>
+      <li>
+        <span class="icon">📞</span>
+        <span>Our team will <strong>call or WhatsApp you</strong> within a few hours to confirm and collect payment.</span>
+      </li>
+      <li>
+        <span class="icon">📦</span>
+        <span>Once payment is confirmed, your order will be <strong>dispatched within 1–2 business days</strong>.</span>
+      </li>
+      <li>
+        <span class="icon">🧾</span>
+        <span>A <strong>PDF invoice</strong> will be emailed to you upon payment confirmation.</span>
+      </li>
+    </ul>
+
+    <!-- Action buttons -->
+    <div class="actions">
+      <a href="/" class="btn btn-primary">Back to Home</a>
+      <a href="/shop" class="btn btn-outline">Continue Shopping</a>
+    </div>
+
+    <p class="contact-note">
+      Questions? Call us at <a href="tel:+919220765389">+91-9220765389</a>
+      or <a href="/get-in-touch">send a message</a>.
+    </p>
+  </div>
+
+  <script>
+    // Read order number from URL and display it
+    const params = new URLSearchParams(window.location.search);
+    const orderNumber = params.get('order');
+    const el = document.getElementById('order-number');
+    if (orderNumber) {
+      el.textContent = orderNumber;
+    } else {
+      el.textContent = '—';
+      el.closest('.order-box').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
