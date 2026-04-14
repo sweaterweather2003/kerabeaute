@@ -1491,7 +1491,7 @@ window.onerror = function(msg, url, lineNo, columnNo, error) {
 console.log("✅ Custom checkout script LOADED v6");
 alert("DEBUG: Checkout Script Loaded");
 
-const BACKEND_URL = "https://kerabeaute-backend.onrender.com";
+const BACKEND_URL = window.location.origin;
 const CART_KEY = "kerabeaute_my_cart";
 
 function renderOrderSummary() {

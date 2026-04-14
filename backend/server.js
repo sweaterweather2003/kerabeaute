@@ -5,6 +5,9 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const PDFDocument = require('pdfkit');
 const nodemailer = require('nodemailer');
+const path = require('path');
+const fs = require('fs');
+
 
 const app = express();
 
@@ -20,6 +23,27 @@ app.use(cors({ origin: '*' }));
 app.get('/', (req, res) => {
   res.send('✅ Kerabeaute Backend is successfully running!');
 });
+
+// Configure Static File Serving
+// Render might have the repo root as the working directory, or the 'backend' folder.
+// We check both for robustness.
+let publicPath = path.join(__dirname, '..', 'public');
+if (!fs.existsSync(publicPath)) {
+    publicPath = path.join(__dirname, 'public');
+}
+console.log(`📂 Serving static files from: ${publicPath}`);
+app.use(express.static(publicPath));
+
+// Dedicated Checkout Route
+app.get('/checkout', (req, res) => {
+    const checkoutPath = path.join(publicPath, 'checkout.html');
+    if (fs.existsSync(checkoutPath)) {
+        res.sendFile(checkoutPath);
+    } else {
+        res.status(404).send('Checkout page not found on server.');
+    }
+});
+
 
 
 // Secure Backend Catalog: The source of truth for prices (in INR)
