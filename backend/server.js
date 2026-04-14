@@ -38,6 +38,31 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Added for checkout.html compatibility
+app.post('/create-razorpay-order', async (req, res) => {
+  try {
+    const { amount } = req.body;
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ success: false, error: "Invalid amount" });
+    }
+
+    const options = {
+      amount: Math.round(amount * 100),   // Amount in paise
+      currency: "INR",
+      receipt: `kb_${Date.now()}`,
+      payment_capture: 1, // Auto capture
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.json({ success: true, order });
+
+  } catch (error) {
+    console.error("Error creating Razorpay order:", error);
+    res.status(500).json({ success: false, error: error.error?.description || "Failed to create order" });
+  }
+});
+
+
 app.post('/create-order', async (req, res) => {
   try {
     const { items, customerEmail } = req.body; 
