@@ -16,6 +16,12 @@ app.use(express.json({
 
 app.use(cors({ origin: '*' }));
 
+// Root route for health check
+app.get('/', (req, res) => {
+  res.send('✅ Kerabeaute Backend is successfully running!');
+});
+
+
 // Secure Backend Catalog: The source of truth for prices (in INR)
 const PRODUCTS = {
     "routine": { name: "Kerabeaute Routine", price: 1599 },
