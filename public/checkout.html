@@ -1552,102 +1552,109 @@ document.addEventListener("DOMContentLoaded", () => {
         el.required = true;
     });
 
-    const form = document.querySelector("form.checkout.woocommerce-checkout");
-    const btn = document.getElementById("kerabeaute_place_order");
+    // USE EVENT DELEGATION: Catch clicks on the button even if WooCommerce replaces it
+    document.body.addEventListener("click", async function(e) {
+        const btn = e.target.closest("#kerabeaute_place_order");
+        if (!btn) return;
 
-    if (form) {
-        // Stop ANY submit event from reaching WooCommerce (e.g., if user presses Enter)
-        form.addEventListener("submit", function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (btn) btn.click(); // Trigger our button logic instead
-        }, true);
-    }
-    
-    if (form && btn) {
-        // Intercept click early before WooCommerce
-        btn.addEventListener("click", async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
 
-            // Manually trigger HTML5 validation UI
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+        const form = document.querySelector("form.checkout.woocommerce-checkout");
+        if (!form) return console.error("Checkout form not found");
 
-            console.log("✅ Form validated - custom handler starting");
+        // Manually trigger HTML5 validation UI
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
 
-            const cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-            if (cart.length === 0) return alert("Your cart is empty!");
+        console.log("✅ Custom Place Order clicked - starting process");
 
-            const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-            const origText = btn.textContent || "Place order";
-            
-            btn.disabled = true;
-            btn.textContent = "⏳ Connecting...";
+        const cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+        if (cart.length === 0) return alert("Your cart is empty!");
 
-            try {
-                console.log("📡 Calling Render backend...");
-                const response = await fetch(`${BACKEND_URL}/create-razorpay-order`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ amount: total })
-                });
+        const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const origText = btn.textContent || "Place order";
+        
+        btn.disabled = true;
+        btn.textContent = "⏳ Connecting...";
 
-                const result = await response.json();
-                console.log("Backend response:", result);
+        try {
+            console.log("📡 Calling Render backend...");
+            const response = await fetch(`${BACKEND_URL}/create-razorpay-order`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: total })
+            });
 
-                if (!result.success) throw new Error(result.error || "Backend failed");
+            const result = await response.json();
+            console.log("Backend response:", result);
 
-                const options = {
-                    key: "rzp_test_SdEI46opa0rVZt",
-                    amount: result.order.amount,
-                    currency: "INR",
-                    name: "Kerabeaute",
-                    description: "Haircare Order",
-                    order_id: result.order.id,
-                    prefill: {
-                        name: (document.getElementById("billing_first_name")?.value + " " + document.getElementById("billing_last_name")?.value).trim(),
-                        email: document.getElementById("billing_email")?.value,
-                        contact: document.getElementById("billing_phone")?.value
-                    },
-                    theme: { color: "#109fa2" },
-                    handler: function (response) {
-                        const orderId = "KB" + Date.now().toString().slice(-8);
-                        localStorage.removeItem(CART_KEY);
-                        generateInvoice(orderId, cart, total, response.razorpay_payment_id);
-                    },
-                    modal: { 
-                        ondismiss: () => {
-                            btn.disabled = false;
-                            btn.textContent = origText;
-                        }
+            if (!result.success) throw new Error(result.error || "Backend failed");
+
+            const options = {
+                key: "rzp_test_SdEI46opa0rVZt",
+                amount: result.order.amount,
+                currency: "INR",
+                name: "Kerabeaute",
+                description: "Haircare Order",
+                order_id: result.order.id,
+                prefill: {
+                    name: (document.getElementById("billing_first_name")?.value + " " + document.getElementById("billing_last_name")?.value).trim(),
+                    email: document.getElementById("billing_email")?.value,
+                    contact: document.getElementById("billing_phone")?.value
+                },
+                theme: { color: "#109fa2" },
+                handler: function (response) {
+                    const orderId = "KB" + Date.now().toString().slice(-8);
+                    localStorage.removeItem(CART_KEY);
+                    generateInvoice(orderId, cart, total, response.razorpay_payment_id);
+                },
+                modal: { 
+                    ondismiss: () => {
+                        btn.disabled = false;
+                        btn.textContent = origText;
                     }
-                };
+                }
+            };
 
-                console.log("🚀 Opening Razorpay popup...");
-                new Razorpay(options).open();
+            console.log("🚀 Opening Razorpay popup...");
+            new Razorpay(options).open();
 
-            } catch (err) {
-                console.error("❌ Payment error:", err);
-                alert("Could not connect to payment server.\n\nError: " + err.message);
-                btn.disabled = false;
-                btn.textContent = origText;
-            }
-        }, true); // Use capture phase!
-    }
+        } catch (err) {
+            console.error("❌ Payment error:", err);
+            alert("Could not connect to payment server.\n\nError: " + err.message);
+            btn.disabled = false;
+            btn.textContent = origText;
+        }
+    }, true);
 
-    // Unbind WooCommerce's own submit block just in case
-    setTimeout(() => {
+    // Stop ANY submit event from reaching WooCommerce (e.g., if user presses Enter)
+    document.addEventListener("submit", function(e) {
+        if (e.target.classList.contains('woocommerce-checkout')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const myBtn = document.getElementById("kerabeaute_place_order");
+            if (myBtn) myBtn.click();
+        }
+    }, true);
+
+    // Unbind WooCommerce's own submit block every time checkout fragments update
+    const cleanup = () => {
         if (window.jQuery) {
             window.jQuery('form.checkout').off('submit');
             window.jQuery('form.checkout').off('checkout_place_order');
         }
-        const els = document.querySelectorAll('.blockUI');
-        els.forEach(el => el.style.display = 'none');
-    }, 500);
+        document.querySelectorAll('.blockUI').forEach(el => el.style.display = 'none');
+    };
+
+    cleanup();
+    if (window.jQuery) {
+        window.jQuery(document.body).on('updated_checkout', cleanup);
+    }
+    setTimeout(cleanup, 1000);
 });
 </script>
 <script src="/search_redirect.js"></script>
