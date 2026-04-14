@@ -903,7 +903,7 @@ Since your browser does not support JavaScript, or it is disabled, please ensure
 <input type="hidden" name="terms-field" value="1" />
 </p>
 </div>
-<button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="Place order" data-value="Place order">Place order</button>
+<button type="button" class="button alt" name="kerabeaute_place_order" id="kerabeaute_place_order" value="Place order" data-value="Place order">Place order</button>
 <input type="hidden" id="woocommerce-process-checkout-nonce" name="woocommerce-process-checkout-nonce" value="00d4a55847" /><input type="hidden" name="_wp_http_referer" value="/checkout/" /> </div>
 </div>
 </div>
@@ -1553,7 +1553,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const form = document.querySelector("form.checkout.woocommerce-checkout");
-    const btn = document.getElementById("place_order");
+    const btn = document.getElementById("kerabeaute_place_order");
+
+    if (form) {
+        // Stop ANY submit event from reaching WooCommerce (e.g., if user presses Enter)
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (btn) btn.click(); // Trigger our button logic instead
+        }, true);
+    }
     
     if (form && btn) {
         // Intercept click early before WooCommerce
