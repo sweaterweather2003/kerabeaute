@@ -1862,6 +1862,160 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log("✅ Firebase initialized on Kerabeaute");
 
 </script>
+<script type="module">
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-functions.js";
+
+const db = getFirestore();
+const functions = getFunctions();
+const createOrderFn = httpsCallable(functions, "createRazorpayOrder");
+
+const CART_KEY = "kerabeaute_my_cart";
+
+function renderOrderSummary() {
+  const cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+  const tbody = document.querySelector(".woocommerce-checkout-review-order-table tbody");
+  if (!tbody) return;
+
+  let subtotal = 0;
+  tbody.innerHTML = "";
+
+  cart.forEach(item => {
+    const lineTotal = item.price * item.qty;
+    subtotal += lineTotal;
+    const tr = document.createElement("tr");
+    tr.className = "cart_item";
+    tr.innerHTML = `
+      <td class="product-name">${item.name} <strong class="product-quantity">× ${item.qty}</strong></td>
+      <td class="product-total"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">₹</span>${lineTotal.toFixed(2)}</bdi></span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const totalTd = document.querySelector("tr.order-total td strong");
+  if (totalTd) totalTd.innerHTML = `<span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">₹</span>${subtotal.toFixed(2)}</bdi></span>`;
+}
+
+// ==================== PLACE ORDER ====================
+document.getElementById("place_order").addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  const cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+  if (cart.length === 0) return alert("Your cart is empty!");
+
+  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+  const btn = document.getElementById("place_order");
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "⏳ Creating secure payment...";
+
+  try {
+    const { data } = await createOrderFn({
+      amount: total,
+      receipt: `kb_${Date.now()}`
+    });
+
+    const options = {
+      key: "rzp_test_SdEI46opa0rVZt",        // ← Your Test Key ID
+      amount: data.order.amount,
+      currency: "INR",
+      name: "Kerabeaute",
+      description: "Haircare Order",
+      order_id: data.order.id,
+      prefill: {
+        name: document.getElementById("billing_first_name").value + " " + document.getElementById("billing_last_name").value,
+        email: document.getElementById("billing_email").value,
+        contact: document.getElementById("billing_phone").value
+      },
+      theme: { color: "#109fa2" },
+      handler: async function (response) {
+        const orderId = "KB" + Date.now().toString().slice(-8);
+
+        await setDoc(doc(db, "orders", orderId), {
+          orderNumber: orderId,
+          razorpayOrderId: data.order.id,
+          razorpayPaymentId: response.razorpay_payment_id,
+          razorpaySignature: response.razorpay_signature,
+          billing: {
+            firstName: document.getElementById("billing_first_name").value,
+            lastName: document.getElementById("billing_last_name").value,
+            email: document.getElementById("billing_email").value,
+            phone: document.getElementById("billing_phone").value,
+            address: document.getElementById("billing_address_1").value + ", " + document.getElementById("billing_city").value
+          },
+          items: cart,
+          total: total,
+          status: "paid",
+          createdAt: serverTimestamp()
+        });
+
+        localStorage.removeItem(CART_KEY);
+        generateInvoice(orderId, cart, total, response.razorpay_payment_id);
+      },
+      modal: { ondismiss: () => { btn.disabled = false; btn.textContent = origText; }}
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed. Try again or call +91-9220765389");
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
+});
+
+function generateInvoice(orderId, cart, total, paymentId) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(22);
+  doc.setTextColor(16, 159, 162);
+  doc.text("KERABEAUTE", 105, 20, { align: "center" });
+
+  doc.setFontSize(12);
+  doc.setTextColor(0);
+  doc.text("INVOICE", 105, 30, { align: "center" });
+  doc.text(`Order # ${orderId}`, 105, 38, { align: "center" });
+
+  doc.setFontSize(11);
+  doc.text(`Date: ${new Date().toLocaleDateString("en-IN")}`, 20, 55);
+  doc.text(`Payment ID: ${paymentId}`, 20, 62);
+
+  // Items
+  const tableData = cart.map(item => [
+    item.name,
+    `× ${item.qty}`,
+    `₹${item.price}`,
+    `₹${(item.price * item.qty).toFixed(2)}`
+  ]);
+
+  doc.autoTable({
+    startY: 80,
+    head: [["Product", "Qty", "Rate", "Amount"]],
+    body: tableData,
+    theme: "striped",
+    headStyles: { fillColor: [16, 159, 162] }
+  });
+
+  const finalY = doc.lastAutoTable.finalY + 15;
+  doc.setFontSize(14);
+  doc.text(`Total Paid: ₹${total.toFixed(2)}`, 140, finalY, { align: "right" });
+
+  doc.setFontSize(10);
+  doc.text("Thank you for shopping with Kerabeaute ❤️", 105, finalY + 25, { align: "center" });
+
+  doc.save(`Kerabeaute_Invoice_${orderId}.pdf`);
+
+  alert("✅ Payment Successful! Invoice downloaded automatically.");
+  window.location.href = `/order-confirmation?order=${orderId}`;
+}
+
+// Render cart on load
+document.addEventListener("DOMContentLoaded", renderOrderSummary);
+</script>
 <script src="/search_redirect.js"></script>
 <script type="module" src="/auth.js"></script>
 </body>
