@@ -1484,7 +1484,12 @@ window.kerabeauteCart = { get: getCart, add: addToCart };
 </style>
 
 <script>
-console.log("✅ Custom checkout script LOADED v5");
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    alert("❌ JS Error: " + msg + "\nAt: " + lineNo + ":" + columnNo);
+    return false;
+};
+console.log("✅ Custom checkout script LOADED v6");
+alert("DEBUG: Checkout Script Loaded");
 
 const BACKEND_URL = "https://kerabeaute-backend.onrender.com";
 const CART_KEY = "kerabeaute_my_cart";
@@ -1554,6 +1559,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // USE EVENT DELEGATION: Catch clicks on the button even if WooCommerce replaces it
     document.body.addEventListener("click", async function(e) {
+        alert("DEBUG: Body Clicked on: " + e.target.id + " / " + e.target.className);
         const btn = e.target.closest("#kerabeaute_place_order");
         if (!btn) return;
 
@@ -1566,10 +1572,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Manually trigger HTML5 validation UI
         if (!form.checkValidity()) {
+            alert("DEBUG: Form validation failed!");
             form.reportValidity();
             return;
         }
 
+        alert("DEBUG: Form validated - Starting Razorpay call");
         console.log("✅ Custom Place Order clicked - starting process");
 
         const cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
